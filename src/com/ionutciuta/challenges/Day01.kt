@@ -49,6 +49,47 @@ class Day01(file: String) {
         val triple = getSumTriple(2020) ?: return
         println(getProduct(Pair(triple.first, triple.second)) * triple.third)
     }
+
+    private fun getSumTerms(sum: Int, operandCount: Int): List<Int> {
+        for (number in data) {
+            val list = mutableListOf<Int>()
+            val diff = sum - number
+
+            if(diff > 0) {
+                list.add(number)
+            } else {
+                continue
+            }
+
+            if(operandCount > 2) {
+                val r = operandCount - 1
+                list.addAll(getSumTerms(diff, r))
+            } else {
+                if (data.contains(diff)) {
+                    list.add(diff)
+                    return list
+                }
+            }
+
+            if(list.size == operandCount) {
+                return list
+            }
+        }
+
+        return emptyList()
+    }
+
+    fun solveTheGenericWay() {
+        val sol = getSumTerms(2020, 2)
+        println("Sol: $sol")
+        println(sol.reduce { acc, i ->  acc * i})
+    }
+
+    fun solvePart2TheGenericWay() {
+        val sol = getSumTerms(2020, 3)
+        println("Sol: $sol")
+        println(sol.reduce { acc, i ->  acc * i})
+    }
 }
 
 
@@ -56,5 +97,8 @@ fun main(args: Array<String>) {
     val file = Tools.getInput(args)
 
     Day01(file).solve()
+    Day01(file).solveTheGenericWay()
+
     Day01(file).solvePart2()
+    Day01(file).solvePart2TheGenericWay()
 }
