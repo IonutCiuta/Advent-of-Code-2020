@@ -50,6 +50,16 @@ class Day01(file: String) {
         println(getProduct(Pair(triple.first, triple.second)) * triple.third)
     }
 
+    // For the generic solution, the gist of it is to deconstruct it using Divide & Conquer
+    // The unit of the problem is an addition between 2 numbers, even if the total number of terms
+    // is n.
+    //
+    // At each step, we compute the diff. If the diff is positive and we're at the end of the recursive
+    // chain - operandCount is 2 - we check if that diff is in the list. If it's not, we move skip
+    // to the next number.
+    //
+    // To get the first combination of terms, we check at each step to see if the list of terms is of
+    // size n.
     private fun getSumTerms(sum: Int, operandCount: Int): List<Int> {
         for (number in data) {
             val list = mutableListOf<Int>()
