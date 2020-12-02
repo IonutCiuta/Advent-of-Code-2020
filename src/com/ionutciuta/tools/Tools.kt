@@ -4,7 +4,7 @@ import java.io.File
 import kotlin.system.exitProcess
 
 
-class Input(val filename: String) {
+class Input(filename: String) {
     var input: File
 
     init {
@@ -12,9 +12,9 @@ class Input(val filename: String) {
         this.input = File(filename)
     }
 
-    fun readIntSet(): Set<Int> {
-       return input.readLines().map { it.toInt() }.toSet()
-    }
+    fun readIntSet(): Set<Int> = input.readLines().map { it.toInt() }.toSet()
+
+    fun readLines(): List<String> = input.readLines()
 }
 
 object Tools {
