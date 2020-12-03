@@ -15,6 +15,14 @@ class Input(filename: String) {
     fun readIntSet(): Set<Int> = input.readLines().map { it.toInt() }.toSet()
 
     fun readLines(): List<String> = input.readLines()
+
+    fun readCharMatrix(): Array<IntArray> {
+        return readLines().map { line ->
+            line.map { char ->
+                if(char == '.') 0 else 1
+            }.toIntArray()
+        }.toTypedArray()
+    }
 }
 
 object Tools {
