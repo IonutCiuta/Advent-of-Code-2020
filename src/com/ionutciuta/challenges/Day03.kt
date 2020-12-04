@@ -14,7 +14,6 @@ class Day03(file: String) {
 
         while (position.y < height - 1) {
             count += moveFrom(position, xSteps, ySteps)
-
         }
 
         return count
