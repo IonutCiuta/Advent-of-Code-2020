@@ -52,7 +52,6 @@ class Day07(file: String): Challenge {
         val content = def[1].trim()
         if(content != "no other bags.") {
             val containedBags = content.split(",")
-            // println("This bag is complex: $content. Contains ${containedBags.size} other bags.")
             containedBags.forEach {
                 val otherBag = it.trim().split("bag")[0].trim()
                 val otherBagCount = otherBag.substring(0, 1).toInt()
@@ -65,8 +64,7 @@ class Day07(file: String): Challenge {
     }
 }
 
-data class Bag(val color: String,
-               val bags: MutableMap<String, Int> = mutableMapOf()) {
+data class Bag(val color: String, val bags: MutableMap<String, Int> = mutableMapOf()) {
     fun addBag(color: String, count: Int) {
         bags[color] = count
     }
