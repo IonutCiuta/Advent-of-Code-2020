@@ -7,45 +7,43 @@ import java.util.concurrent.atomic.AtomicInteger
 
 class Day07(file: String): Challenge {
     private val data = Input(file).readLines()
+    private val target = "shiny gold"
+    private val bags = data.map { getBagFromDescription(it) }.map { it.color to it }.toMap()
+
 
     override fun solve() {
-        val bags = data.map { getBagFromDescription(it) }.map { it.color to it }.toMap()
-        bags.forEach {
-            println(it)
-        }
-
-        println()
-
-        val target = "shiny gold"
-        var counter = AtomicInteger(0)
-        for (bag in bags) {
-            recursiveCheck(bags[bag.key]!!, bags, target, counter)
-            println()
-        }
+        val counter = AtomicInteger(0)
+        bags.forEach { recursiveCheck(bags[it.key]!!, bags, target, counter) }
         println(counter.get())
     }
 
-    fun recursiveCheck(bag: Bag, allBags: Map<String, Bag>, targetBag: String, counter: AtomicInteger): Boolean {
-        println("Looking into ${bag.color}")
+    private fun recursiveCheck(bag: Bag, allBags: Map<String, Bag>, targetBag: String, counter: AtomicInteger): Boolean {
         if (bag.bags.containsKey(targetBag)) {
-            println("${bag.color} contains $targetBag!")
-            counter.getAndIncrement()
+            counter.incrementAndGet()
             return true
         }
 
         bag.bags.forEach {
-            println("Looking into ${bag.color} -> ${it.key}")
-            return recursiveCheck(allBags[it.key]!!, allBags, targetBag, counter)
+            if(recursiveCheck(allBags[it.key]!!, allBags, targetBag, counter))
+                return true
         }
 
         return false
     }
 
     override fun solvePart2() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        val shinyGoldBag = bags[target]!!
+        val r = shinyGoldBag.bags.map { it.value * recursiveAdd(bags[it.key]!!, bags) }.sum()
+        println(r)
     }
 
-    fun getBagFromDescription(input: String): Bag {
+    private fun recursiveAdd(bag: Bag, allBags: Map<String, Bag>): Int {
+        var counter = 1
+        bag.bags.forEach { counter += it.value * recursiveAdd(allBags[it.key]!!, allBags) }
+        return counter
+    }
+
+    private fun getBagFromDescription(input: String): Bag {
         val def = input.split("contain")
 
         val bagColor = def[0].trim().split("bags")[0].trim()
@@ -79,5 +77,3 @@ fun main(args: Array<String>) {
     Day07(file).solve()
     Day07(file).solvePart2()
 }
-
-
