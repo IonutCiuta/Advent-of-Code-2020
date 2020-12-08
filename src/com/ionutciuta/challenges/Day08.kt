@@ -9,9 +9,7 @@ class Day08(file: String): Challenge {
 
 
     override fun solve() {
-        val p = LoopingProgram(data)
-        val r = p.run()
-        println("Errored: ${p.errored}")
+        val r = LoopingProgram(data).run()
         println(r)
     }
 
@@ -67,7 +65,7 @@ class SelfHealingProgram(code: List<String>): Program(code) {
             val p = LoopingProgram(newCode)
             val r = p.run()
 
-            if(!p.errored) {
+            if(!p.isErrored()) {
                 return r
             }
         }
@@ -85,10 +83,11 @@ class SelfHealingProgram(code: List<String>): Program(code) {
 
 abstract class Program(val code: List<String>) {
     protected val history = mutableSetOf<Int>()
-    var errored = false
+    protected var errored = false
     protected var accumulator = 0
     protected fun getInstruction(line: String) = line.substring(0, 3)
     protected fun getParam(line: String) = line.substring(4).toInt()
+    fun isErrored() = errored
 
     abstract fun run(): Int
 }
