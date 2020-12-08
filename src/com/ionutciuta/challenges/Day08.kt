@@ -9,7 +9,9 @@ class Day08(file: String): Challenge {
 
 
     override fun solve() {
-        val r = LoopingProgram(data).run()
+        val p = LoopingProgram(data)
+        val r = p.run()
+        println("Errored: ${p.errored}")
         println(r)
     }
 
@@ -22,14 +24,16 @@ class Day08(file: String): Challenge {
 class LoopingProgram(code: List<String>): Program(code) {
     override fun run(): Int {
         var i = 0
-        while (history.size != code.size) {
-            if(history.contains(i)) break
+        while (history.size != code.size && i  < code.size) {
+            if(history.contains(i)) {
+                errored = true
+                break
+            }
             history.add(i)
 
             val line = code[i]
             val instr = getInstruction(line)
             val param = getParam(line)
-            println("$instr, $param")
 
             when (instr) {
                 "nop" -> i++
@@ -46,40 +50,28 @@ class LoopingProgram(code: List<String>): Program(code) {
 }
 
 class SelfHealingProgram(code: List<String>): Program(code) {
+
     override fun run(): Int {
-        var i = 0
-        var prev = 0
-        var foundError = false
-        while (history.size != code.size) {
-            if(history.contains(i)) {
-                i = prev
-                foundError = true
-            } else {
-                history.add(i)
-                prev = i
-            }
-
-            val line = code[i]
-            var instr = getInstruction(line)
+        for ((i, line) in code.withIndex()) {
+            val instr = getInstruction(line)
             val param = getParam(line)
-            if(foundError) {
-                instr = switchInstr(instr)
+
+            if(instr == "acc") {
+                continue
             }
 
-            when (instr) {
-                "nop" -> i++
-                "acc" -> {
-                    accumulator += param
-                    i++
-                }
-                "jmp" -> i += param
-            }
+            val newInstr = switchInstr(instr)
+            val newLine = "$newInstr $param"
+            val newCode = code.toMutableList()
+            newCode[i] = newLine
+            val p = LoopingProgram(newCode)
+            val r = p.run()
 
-            if (foundError) {
-                return accumulator
+            if(!p.errored) {
+                return r
             }
         }
-        return accumulator
+        return LoopingProgram(code).run()
     }
 
     private fun switchInstr(instr: String): String {
@@ -93,6 +85,7 @@ class SelfHealingProgram(code: List<String>): Program(code) {
 
 abstract class Program(val code: List<String>) {
     protected val history = mutableSetOf<Int>()
+    var errored = false
     protected var accumulator = 0
     protected fun getInstruction(line: String) = line.substring(0, 3)
     protected fun getParam(line: String) = line.substring(4).toInt()
