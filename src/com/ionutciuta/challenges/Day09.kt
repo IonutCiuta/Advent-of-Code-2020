@@ -9,7 +9,7 @@ class Day09(file: String): Challenge {
     var vulnerableNumber = 0L
 
     override fun solve() {
-        vulnerableNumber = findVulnerableNumber(10) ?: 0L
+        vulnerableNumber = findVulnerableNumber(25)!!
         println(vulnerableNumber)
     }
 
