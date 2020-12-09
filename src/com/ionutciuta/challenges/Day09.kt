@@ -38,7 +38,7 @@ class Day09(file: String): Challenge {
         numbers.forEachIndexed { i, n ->
             val cache = mutableListOf<Long>()
             val found = findSublistSum(vulnerableNumber, i, numbers, cache)
-            if(found && cache.size >= 2) {
+            if(found && cache.size > 1) {
                 println(getSumOfMinMax(cache))
                 return
             }
@@ -51,8 +51,8 @@ class Day09(file: String): Challenge {
             return false
 
         val diff = n - numbers[i]
+        cache.add(numbers[i])
         if(diff == 0L) {
-            cache.add(numbers[i])
             return true
         }
 
@@ -90,6 +90,7 @@ class Queue(val size: Int) {
 
 fun main(args: Array<String>) {
     val file = Tools.getInput(args)
-    Day09(file).solve()
-    Day09(file).solvePart2()
+    val puzzle = Day09(file)
+    puzzle.solve()
+    puzzle.solvePart2()
 }
