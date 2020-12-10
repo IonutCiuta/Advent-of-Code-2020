@@ -17,12 +17,12 @@ class Day10(file: String): Challenge {
         val complete = data.sorted().toMutableSet()
         val counters = listOf(AtomicInteger(0), AtomicInteger(0), AtomicInteger(0))
         // println(complete)
-        checkAdapters(0, 0, counters, complete)
+        checkAdapters(0, counters, complete)
         println(counters[0].get() * counters[2].get())
     }
 
-    private fun checkAdapters(port: Int, i: Int, diffs: List<AtomicInteger>, ports: Set<Int>) {
-        if(i == ports.size)
+    private fun checkAdapters(port: Int, diffs: List<AtomicInteger>, ports: Set<Int>) {
+        if(port >= ports.last())
             return
 
         val next = getNextPorts(port)
@@ -31,7 +31,23 @@ class Day10(file: String): Challenge {
             if(ports.contains(nextPort)) {
                 val c = diffs[ix].incrementAndGet()
                 // println("Next from $port is $nextPort with diff ${ix + 1}. Now total: $c\n")
-                return checkAdapters(nextPort, i + 1, diffs, ports)
+                return checkAdapters(nextPort, diffs, ports)
+            }
+        }
+    }
+
+    private fun checkAdaptersExhaustively(port: Int, routes: AtomicInteger, ports: Set<Int>) {
+        if(port >= ports.last()) {
+            routes.incrementAndGet()
+            return
+        }
+
+        val next = getNextPorts(port)
+        // println("Valid ports for $port are $next")
+        next.forEach { nextPort ->
+            if(ports.contains(nextPort)) {
+                // println("Next from $port is $nextPort with diff ${ix + 1}. Now total: $c\n")
+                checkAdaptersExhaustively(nextPort, routes, ports)
             }
         }
     }
