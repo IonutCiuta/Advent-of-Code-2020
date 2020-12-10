@@ -34,39 +34,22 @@ class Day10(file: String): Challenge {
             return
 
         val next = getNextPorts(port)
-        // println("Valid ports for $port are $next")
         next.forEachIndexed { ix, nextPort ->
             if(ports.contains(nextPort)) {
-                val c = diffs[ix].incrementAndGet()
-                // println("Next from $port is $nextPort with diff ${ix + 1}. Now total: $c\n")
+                diffs[ix].incrementAndGet()
                 return checkAdapters(nextPort, diffs, ports)
             }
         }
     }
 
     override fun solvePart2() {
-//        val counter = AtomicInteger(0)
-//        checkAdaptersExhaustively(0, counter, complete)
-//        println(counter.get())
         val c = Counter()
-        cAE_2(0, complete, c)
+        val memo = HashMap<Int, Long>()
+        cAEmemo(0, complete, c, memo)
         println(c.get())
     }
 
-    class Counter {
-        var v = 0L
-
-        fun inc() {
-            v++
-        }
-
-        fun add(x: Long) {
-            v += x
-        }
-
-        fun get() = v
-    }
-
+    // This works well for short inputs, but can't handle a 100 line file
     private fun checkAdaptersExhaustively(port: Int, routes: AtomicInteger, ports: Set<Int>) {
         if(port == ports.last()) {
             routes.incrementAndGet()
@@ -81,13 +64,17 @@ class Day10(file: String): Challenge {
         }
     }
 
-    val memo = HashMap<Int, Long>()
-
-    private fun cAE_2(port: Int, ports: Set<Int>, counter: Counter) {
+    // This is the same as above with some thin optimisations (no Atomic vars) & memoization
+    private fun cAEmemo(port: Int, ports: Set<Int>, counter: Counter, memo: HashMap<Int, Long>) {
+        // If we've reached the last element then we know
+        // we have reached the end of the route
         if(port == dev) {
             counter.inc()
+            return
         }
 
+        // If it's not the end, let's check our cache and add the cached
+        // value directly to our counter
         if(memo.containsKey(port)) {
             counter.add(memo[port]!!)
             return
@@ -96,12 +83,23 @@ class Day10(file: String): Challenge {
         val next = listOf(port + 1, port + 2, port + 3)
         next.forEach { nextPort ->
             if(ports.contains(nextPort)) {
-                cAE_2(nextPort, ports, counter)
+                cAEmemo(nextPort, ports, counter, memo)
+                // Cache the response - we have returned from the recursive call
+                // Our pivot/key is the port and the value is what we've counted until now
                 memo[port] = counter.get()
             }
         }
     }
 }
+
+class Counter(private var v: Long = 0L) {
+    fun inc() { v++ }
+
+    fun add(x: Long) { v += x }
+
+    fun get() = v
+}
+
 
 fun main(args: Array<String>) {
     val file = Tools.getInput(args)
