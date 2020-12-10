@@ -27,6 +27,7 @@ class Day10(file: String): Challenge {
         val counters = listOf(AtomicInteger(0), AtomicInteger(0), AtomicInteger(0))
         checkAdapters(0, counters, complete)
         println(counters[0].get() * counters[2].get())
+        println(complete)
     }
 
     private fun checkAdapters(port: Int, diffs: List<AtomicInteger>, ports: Set<Int>) {
@@ -76,6 +77,7 @@ class Day10(file: String): Challenge {
         // If it's not the end, let's check our cache and add the cached
         // value directly to our counter
         if(memo.containsKey(port)) {
+            println("Found in cache $port > ${counter.get()}")
             counter.add(memo[port]!!)
             return
         }
@@ -86,6 +88,7 @@ class Day10(file: String): Challenge {
                 cAEmemo(nextPort, ports, counter, memo)
                 // Cache the response - we have returned from the recursive call
                 // Our pivot/key is the port and the value is what we've counted until now
+                println("Caching $port > ${counter.get()}")
                 memo[port] = counter.get()
             }
         }
