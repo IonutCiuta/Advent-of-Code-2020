@@ -9,12 +9,14 @@ class Day10(file: String): Challenge {
     private val data = Input(file).readIntSet().toMutableSet()
     private val deviceOffset = 3
     private val portDiff = 3
-    private var complete = emptySet<Int>()
+    private var complete = HashSet<Int>()
+    private var dev = 0
 
     init {
+        dev = getDeviceAdapter()
         data.add(0)
-        data.add(getDeviceAdapter())
-        complete = data.sorted().toMutableSet()
+        data.add(dev)
+        complete = data.sorted().toHashSet()
     }
 
     private fun getDeviceAdapter() = data.max()!! + deviceOffset
@@ -43,9 +45,26 @@ class Day10(file: String): Challenge {
     }
 
     override fun solvePart2() {
-        val counter = AtomicInteger(0)
-        checkAdaptersExhaustively(0, counter, complete)
-        println(counter.get())
+//        val counter = AtomicInteger(0)
+//        checkAdaptersExhaustively(0, counter, complete)
+//        println(counter.get())
+        val c = Counter()
+        cAE_2(0, complete, c)
+        println(c.get())
+    }
+
+    class Counter {
+        var v = 0L
+
+        fun inc() {
+            v++
+        }
+
+        fun add(x: Long) {
+            v += x
+        }
+
+        fun get() = v
     }
 
     private fun checkAdaptersExhaustively(port: Int, routes: AtomicInteger, ports: Set<Int>) {
@@ -58,6 +77,27 @@ class Day10(file: String): Challenge {
         next.forEach { nextPort ->
             if(ports.contains(nextPort)) {
                 checkAdaptersExhaustively(nextPort, routes, ports)
+            }
+        }
+    }
+
+    val memo = HashMap<Int, Long>()
+
+    private fun cAE_2(port: Int, ports: Set<Int>, counter: Counter) {
+        if(port == dev) {
+            counter.inc()
+        }
+
+        if(memo.containsKey(port)) {
+            counter.add(memo[port]!!)
+            return
+        }
+
+        val next = listOf(port + 1, port + 2, port + 3)
+        next.forEach { nextPort ->
+            if(ports.contains(nextPort)) {
+                cAE_2(nextPort, ports, counter)
+                memo[port] = counter.get()
             }
         }
     }
