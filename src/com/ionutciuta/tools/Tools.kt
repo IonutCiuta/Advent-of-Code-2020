@@ -23,6 +23,10 @@ class Input(filename: String) {
             }.toIntArray()
         }.toTypedArray()
     }
+
+    fun readCharMatrix(): Array<CharArray> {
+        return readLines().map { it.toCharArray() }.toTypedArray()
+    }
 }
 
 object Tools {
