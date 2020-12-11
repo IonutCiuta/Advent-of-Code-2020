@@ -16,7 +16,7 @@ class Input(filename: String) {
 
     fun readLines(): List<String> = input.readLines()
 
-    fun readCharMatrix(): Array<IntArray> {
+    fun readCharsInIntMatrix(): Array<IntArray> {
         return readLines().map { line ->
             line.map { char ->
                 if(char == '.') 0 else 1

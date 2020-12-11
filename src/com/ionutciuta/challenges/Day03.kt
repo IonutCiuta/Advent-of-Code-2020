@@ -4,7 +4,7 @@ import com.ionutciuta.tools.Input
 import com.ionutciuta.tools.Tools
 
 class Day03(file: String) {
-    private val data = Input(file).readCharMatrix()
+    private val data = Input(file).readCharsInIntMatrix()
     private val width = data[0].size
     private val height = data.size
 
