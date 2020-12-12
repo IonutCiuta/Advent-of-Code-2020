@@ -18,10 +18,10 @@ class Day11(file: String): Challenge {
 }
 
 class SeatMap(content: Array<CharArray>) {
-    val empty = 'L'
-    val taken = '#'
-    val notSeat = '.'
-    var ocuppied = 0
+    private val empty = 'L'
+    private val occupied = '#'
+    private val floor = '.'
+    private var ocuppied = 0
 
     var points = content
     private val rows = content.size
@@ -37,19 +37,17 @@ class SeatMap(content: Array<CharArray>) {
 
     fun isEmtpy(s: Char) = s == empty
 
-    fun isTaken(s: Char) = s == taken
+    fun isOccupied(s: Char) = s == occupied
 
-    fun isNotSeat(s: Char) = s == notSeat
+    fun isFloor(s: Char) = s == floor
 
-    fun countEmpty(n: List<Char>) = n.count { isEmtpy(it) }
-
-    fun countTaken(n: List<Char>) = n.count { isTaken(it) }
+    fun countTaken(n: List<Char>) = n.count { isOccupied(it) }
 
     fun getNext(s: Char, n: List<Char>): Char {
         return when {
-            isNotSeat(s) -> notSeat
-            isEmtpy(s) && countTaken(n) == 0 -> { ocuppied += 1; taken }
-            isTaken(s) && countTaken(n) > 3 -> empty
+            isFloor(s) -> floor
+            isEmtpy(s) && countTaken(n) == 0 -> { ocuppied += 1; occupied }
+            isOccupied(s) && countTaken(n) > 3 -> empty
             else -> s
         }
     }
@@ -66,22 +64,16 @@ class SeatMap(content: Array<CharArray>) {
                 line[j] = next
             }
         }
-        //show(new)
-        return if(compare(points, new)) {
-            false
-        } else {
-            points = new
-            true
-        }
+        val identical= areMapsIdentical(points, new)
+        points = new
+        return identical
 
     }
 
     fun update() {
-        var c = 0
-        while (updateOnce()) {
-            c++
-        }
-        println("Stopped after $c iterations")
+        var iterations = 0
+        while (!updateOnce()) { iterations++ }
+        println("Stopped after $iterations iterations")
     }
 
     private fun generateOffsets(): List<Pair<Int, Int>> {
@@ -96,8 +88,8 @@ class SeatMap(content: Array<CharArray>) {
         return offsets
     }
 
-    fun show(m: Array<CharArray>) {
-        for (line in m) {
+    fun show() {
+        for (line in points) {
             for (col in line) {
                 print(col)
             }
@@ -106,7 +98,7 @@ class SeatMap(content: Array<CharArray>) {
         println()
     }
 
-    fun compare(a: Array<CharArray>, b: Array<CharArray>): Boolean {
+    private fun areMapsIdentical(a: Array<CharArray>, b: Array<CharArray>): Boolean {
         for (i in a.indices) {
             if (!a[i].contentEquals(b[i]))
                 return false
