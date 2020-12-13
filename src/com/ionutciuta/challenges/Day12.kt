@@ -56,8 +56,7 @@ object Compass {
 }
 
 class Navigator(val moves: List<Move>) {
-    private var eastWestAxisVal = 0
-    private var northSouthAxisVal = 0
+    private val ship = Point()
     private var orientation = 'E'
 
     fun navigate() {
@@ -69,7 +68,7 @@ class Navigator(val moves: List<Move>) {
         }
     }
 
-    fun computeDistance() = northSouthAxisVal.absoluteValue + eastWestAxisVal.absoluteValue
+    fun computeDistance() = ship.x.absoluteValue + ship.y.absoluteValue
 
     private fun move(direction: Char, units: Int) {
         if(direction == 'F') {
@@ -77,10 +76,10 @@ class Navigator(val moves: List<Move>) {
             return
         } else {
             when(direction) {
-                'N' -> northSouthAxisVal += units
-                'W' -> eastWestAxisVal -= units
-                'S' -> northSouthAxisVal -= units
-                'E' -> eastWestAxisVal += units
+                'N' -> ship.y += units
+                'W' -> ship.x -= units
+                'S' -> ship.y -= units
+                'E' -> ship.x += units
             }
         }
     }
@@ -90,9 +89,33 @@ class Navigator(val moves: List<Move>) {
     }
 
     private fun show(prompt: String = ">") {
-        println("$prompt $orientation - $eastWestAxisVal, $northSouthAxisVal")
+        println("$prompt $orientation - $ship.x, $ship.y")
     }
 }
+
+//class WaypointNavigator(val moves: List<Move>, val waypoint: Point) {
+//    private val ship = Point(0,0)
+//
+//    private fun moveShip(units: Int) {
+//        ship.x += units*waypoint.x
+//        ship.y += units*waypoint.y
+//    }
+//
+//    private fun moveWaypoint(move: Move) {
+//        when(move.direction) {
+//            'N' -> waypoint.y += move.units
+//            'W' -> waypoint.x -= move.units
+//            'S' -> waypoint.y -= move.units
+//            'E' -> waypoint.x += move.units
+//        }
+//    }
+//
+//    private fun rotateWaypoint() {
+//
+//    }
+//}
+
+data class Point(var x: Int = 0, var y: Int = 0)
 
 fun main(args: Array<String>) {
     val file = Tools.getInput(args)
