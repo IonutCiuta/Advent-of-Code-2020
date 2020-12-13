@@ -16,7 +16,9 @@ class Day12(file: String): Challenge {
     }
 
     override fun solvePart2() {
-
+        val n = WaypointNavigator(moves, Point(10, 1))
+        n.navigateWithWaypoint()
+        println(n.computeDistance())
     }
 
     private fun readMoves(): List<Move> = data.map {
@@ -33,38 +35,51 @@ data class Move(val direction: Char, val units: Int, var isRotation: Boolean = f
 }
 
 object Compass {
-    private val values = arrayOf('E', 'N', 'W', 'S')
+    private val orientations = arrayOf('E', 'N', 'W', 'S')
+
+    private val quadrantDirections = mapOf(
+        0 to ( 1 to  1),
+        1 to (-1 to  1),
+        2 to (-1 to -1),
+        3 to ( 1 to -1)
+    )
+
+    fun computeQuadrant(currentOrientation: Char, move: Move): Int {
+        val quadrantHop = move.units/90
+        val orientationQuadrant = orientations.indexOf(currentOrientation)
+        val rawQuadrant = when(move.direction) {
+            'R' -> orientationQuadrant - quadrantHop
+            'L' -> orientationQuadrant + quadrantHop
+            else -> orientationQuadrant
+        }
+        return normaliseQ(rawQuadrant)
+    }
+
+    fun normaliseQ(q: Int): Int {
+        if(q < 0) return 4 + q
+        if(q > 3) return q - 4
+        return q
+    }
 
     fun computeOrientation(currentOrientation: Char, move: Move): Char {
-        val quadrantHop = move.units/90
-        val q = values.indexOf(currentOrientation)
-        val nextQuadrant = when(move.direction) {
-            'R' -> q - quadrantHop
-            'L' -> q + quadrantHop
-            else -> q
-        }
+        val nextQuadrant = computeQuadrant(currentOrientation, move)
         return computeOrientation(nextQuadrant)
     }
 
-    private fun computeOrientation(q: Int): Char {
-        if(q < 0)
-            return values[4 + q]
-        if(q > 3)
-            return values[q - 4]
-        return return values[q]
-    }
+    fun computeOrientation(q: Int) = orientations[q]
+
+    fun getQuadrantDirections(q: Int) = quadrantDirections[q]
 }
 
-class Navigator(val moves: List<Move>) {
-    private val ship = Point()
-    private var orientation = 'E'
+open class Navigator(val moves: List<Move>, val debug: Boolean = false) {
+    protected val ship = Point()
+    protected var orientation = 'E'
 
     fun navigate() {
         moves.forEach {
             show("Before move: $it")
             if(it.isRotation) rotate(it) else move(it.direction, it.units)
             show("After move: $it")
-            println()
         }
     }
 
@@ -88,32 +103,57 @@ class Navigator(val moves: List<Move>) {
         orientation = Compass.computeOrientation(orientation, rotation)
     }
 
-    private fun show(prompt: String = ">") {
-        println("$prompt $orientation - $ship.x, $ship.y")
+    protected open fun show(prompt: String = ">") {
+        if(debug) {
+            println("$prompt $orientation - ${ship.x}, ${ship.y}")
+        }
     }
 }
 
-//class WaypointNavigator(val moves: List<Move>, val waypoint: Point) {
-//    private val ship = Point(0,0)
-//
-//    private fun moveShip(units: Int) {
-//        ship.x += units*waypoint.x
-//        ship.y += units*waypoint.y
-//    }
-//
-//    private fun moveWaypoint(move: Move) {
-//        when(move.direction) {
-//            'N' -> waypoint.y += move.units
-//            'W' -> waypoint.x -= move.units
-//            'S' -> waypoint.y -= move.units
-//            'E' -> waypoint.x += move.units
-//        }
-//    }
-//
-//    private fun rotateWaypoint() {
-//
-//    }
-//}
+class WaypointNavigator(moves: List<Move>, val waypoint: Point): Navigator(moves, true) {
+
+    fun navigateWithWaypoint() {
+        moves.forEach {
+            show("Before move: $it")
+            if(it.direction == 'F') {
+                moveShip(it.units)
+            } else {
+                if(it.isRotation) rotateWaypoint(it) else moveWaypoint(it)
+            }
+            show("After move: $it")
+        }
+    }
+
+    private fun moveShip(units: Int) {
+        ship.x += units * waypoint.x
+        ship.y += units * waypoint.y
+    }
+
+    private fun moveWaypoint(move: Move) {
+        when(move.direction) {
+            'N' -> waypoint.y += move.units
+            'W' -> waypoint.x -= move.units
+            'S' -> waypoint.y -= move.units
+            'E' -> waypoint.x += move.units
+        }
+    }
+
+    private fun rotateWaypoint(rotation: Move) {
+        val nextQuadrant = Compass.computeQuadrant(orientation, rotation)
+        orientation = Compass.computeOrientation(nextQuadrant)
+        val qDir = Compass.getQuadrantDirections(nextQuadrant)!!
+        waypoint.x *= qDir.first
+        waypoint.y *= qDir.second
+    }
+
+    override fun show(prompt: String) {
+        if(debug) {
+            println("$prompt Waypoint - ${waypoint.x}, ${waypoint.y}")
+            println("$prompt $orientation - ${ship.x}, ${ship.y}")
+            println("----")
+        }
+    }
+}
 
 data class Point(var x: Int = 0, var y: Int = 0)
 
