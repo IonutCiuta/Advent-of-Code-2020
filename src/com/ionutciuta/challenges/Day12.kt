@@ -16,7 +16,7 @@ class Day12(file: String): Challenge {
     }
 
     override fun solvePart2() {
-        val n = WaypointNavigator(moves, Point(10, 1))
+        val n = WaypointNavigator(moves, Point(-1, 2))
         n.navigateWithWaypoint()
         println(n.computeDistance())
     }
@@ -62,13 +62,19 @@ object Compass {
     }
 
     fun computeOrientation(currentOrientation: Char, move: Move): Char {
-        val nextQuadrant = computeQuadrant(currentOrientation, move)
-        return computeOrientation(nextQuadrant)
+        val hops = quadrantHops(move)
+        return when(currentOrientation) {
+            'E' -> return if(hops % 2 != 0) 'W' else currentOrientation
+            'W' -> return if(hops % 2 != 0) 'E' else currentOrientation
+            else -> currentOrientation
+        }
     }
 
     fun computeOrientation(q: Int) = orientations[q]
 
     fun getQuadrantDirections(q: Int) = quadrantDirections[q]
+
+    fun quadrantHops(move: Move) = move.units/90
 }
 
 open class Navigator(val moves: List<Move>, val debug: Boolean = false) {
@@ -142,6 +148,13 @@ class WaypointNavigator(moves: List<Move>, val waypoint: Point): Navigator(moves
         val nextQuadrant = Compass.computeQuadrant(orientation, rotation)
         orientation = Compass.computeOrientation(nextQuadrant)
         val qDir = Compass.getQuadrantDirections(nextQuadrant)!!
+        val qHop = rotation.units/90
+        if(qHop % 2 > 0) {
+            val oldX = waypoint.x
+            waypoint.x = waypoint.y
+            waypoint.y = oldX
+        }
+
         waypoint.x *= qDir.first
         waypoint.y *= qDir.second
     }
