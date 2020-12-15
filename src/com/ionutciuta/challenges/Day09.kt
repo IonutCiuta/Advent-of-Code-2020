@@ -14,7 +14,7 @@ class Day09(file: String): Challenge {
     }
 
     private fun findVulnerableNumber(preambleSize: Int): Long? {
-        val preamble = Queue(preambleSize)
+        val preamble = SpecialQueue(preambleSize)
         val lookup = mutableSetOf<Long>()
 
         data.forEachIndexed { i, line ->
@@ -65,7 +65,7 @@ class Day09(file: String): Challenge {
     }
 }
 
-class Queue(val size: Int) {
+class SpecialQueue(val size: Int) {
     private val q = mutableListOf<Long>()
     private var total = 0
 
