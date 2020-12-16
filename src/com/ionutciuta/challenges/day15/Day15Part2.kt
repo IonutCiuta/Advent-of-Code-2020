@@ -44,7 +44,7 @@ class Day15Part2(input: String) {
     }
 }
 
-class SuperQueue {
+private class SuperQueue {
     val array = Array(2) { 0 }
     var adds = 0
     var size = 0

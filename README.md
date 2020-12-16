@@ -10,3 +10,7 @@ The dummy recursive solution for part 2 clearly did not work as 1h30m later it s
 Someone on Reddit mentioned something about memoization which reminded me of the Fibonacci recursive implementation.
 With this implementation, the algorithm runs almost instantly.
 * Day 11 has by far the messiest code till now. I've already implemented Conway's Game of Life a while ago so I wasn't very enthusiastic about doing it again.
+* Day 15 was quite interesting. Definitely one fo the simplest requirements and implementations but the super large input
+for part 2 made my initial solution worthless. Just as a reference, the implementation for part 1 processed about **1 mil.
+turns** in **6 minutes**🤯 I assume the biggest overhead was due to the crude queue implementation. Final version for part 2 actually
+finishes in **6 sec** 🙌🏻
