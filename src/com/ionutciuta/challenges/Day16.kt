@@ -3,6 +3,7 @@ package com.ionutciuta.challenges
 import com.ionutciuta.tools.Challenge
 import com.ionutciuta.tools.Input
 import com.ionutciuta.tools.Tools
+import java.util.HashMap
 
 class Day16(file: String): Challenge {
     private val data = Input(file).readLines()
@@ -45,16 +46,7 @@ class Day16(file: String): Challenge {
         return Field(name, rules)
     }
 
-    private fun validateTicket(ticket: List<Int>): Int {
-        var sum = 0
-        ticket.map { validateTicketValue(it) }.forEachIndexed { index, value ->
-            if(value == 0) {
-                invalidTicketsIndices.add(index)
-            }
-            sum += value
-        }
-        return sum
-    }
+    private fun validateTicket(ticket: List<Int>) = ticket.map { validateTicketValue(it) }.sum()
 
     private fun validateTicketValue(value: Int): Int {
         val r = fields.map { it.isValueValidForField(value) }.reduce { a, b -> a || b }
@@ -73,14 +65,34 @@ class Day16(file: String): Challenge {
     }
 
     override fun solve() {
-        val r = otherTickets.map { validateTicket(it) }.sum()
-        println(r)
+        var sum = 0
+        otherTickets.forEachIndexed { index, ticket ->
+            val r = validateTicket(ticket)
+            if(r != 0) invalidTicketsIndices.add(index)
+            sum += r
+        }
+        println(sum)
         cleanupTickets()
     }
 
     override fun solvePart2() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        val rules = getFieldRulesAsMap()
+        val fieldsNames = HashMap<Int, Set<String>>()
+        for(field in myTicket.indices) {
+            val matchingRules = HashSet(rules.keys)
+            for(ticket in otherTickets) {
+                rules.values.forEach {
+                    if(!it.isValueValidForField(ticket[field])) {
+                        matchingRules.remove(it.name)
+                    }
+                }
+            }
+            fieldsNames[field] = matchingRules
+        }
+        fieldsNames.forEach { println("${it.key} -> ${it.value}") }
     }
+
+    private fun getFieldRulesAsMap() = HashMap(fields.map { it.name to it }.toMap())
 }
 
 data class Field(val name: String, private val rules: List<Interval> = mutableListOf()) {
