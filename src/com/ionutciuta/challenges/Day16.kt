@@ -77,7 +77,7 @@ class Day16(file: String): Challenge {
 
     override fun solvePart2() {
         val rules = getFieldRulesAsMap()
-        val fieldsNames = HashMap<Int, Set<String>>()
+        val fieldsNames = HashMap<Int, MutableSet<String>>()
         for(field in myTicket.indices) {
             val matchingRules = HashSet(rules.keys)
             for(ticket in otherTickets) {
@@ -90,6 +90,37 @@ class Day16(file: String): Challenge {
             fieldsNames[field] = matchingRules
         }
         fieldsNames.forEach { println("${it.key} -> ${it.value}") }
+
+        val oneToOneFieldNameMapping = HashMap<String, Int>()
+        while (oneToOneFieldNameMapping.size < myTicket.size) {
+            var foundIndex: Int = 0
+            var foundValue: String = ""
+            for(fieldIndex in fieldsNames.keys) {
+                val possibleFieldNames = fieldsNames[fieldIndex]
+                if(possibleFieldNames != null && possibleFieldNames.size == 1) {
+                    foundIndex = fieldIndex
+                    foundValue = possibleFieldNames.first()
+                    oneToOneFieldNameMapping[foundValue] = foundIndex
+                    break
+                }
+            }
+
+            fieldsNames.remove(foundIndex)
+            for(fieldIndex in fieldsNames.keys) {
+                val possibleFieldNames = fieldsNames[fieldIndex]!!
+                possibleFieldNames.remove(foundValue)
+            }
+        }
+        oneToOneFieldNameMapping.forEach { println("${it.key} -> ${it.value}") }
+
+        var r = 1L
+        oneToOneFieldNameMapping
+            .filter { it.key.startsWith("departure") }
+            .forEach {
+                println("${it.value} -> ${it.key}, ${myTicket[it.value]}")
+                r *= myTicket[it.value]
+            }
+        println(r)
     }
 
     private fun getFieldRulesAsMap() = HashMap(fields.map { it.name to it }.toMap())

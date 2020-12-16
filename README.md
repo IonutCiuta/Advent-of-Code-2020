@@ -14,3 +14,5 @@ With this implementation, the algorithm runs almost instantly.
 for part 2 made my initial solution worthless. Just as a reference, the implementation for part 1 processed about **1 mil.
 turns** in **6 minutes**🤯 I assume the biggest overhead was due to the crude queue implementation. Final version for part 2 actually
 finishes in **6 sec** 🙌🏻
+* Day 16 was not that hard, but it was a lot of work. The main thing I was missing for part 2 was the understanding that a field can satisfy multiple rules, but there is only one field which satisfies exactly one rule. Then it was `easy`.
+Also, multiply ints is a good indication that the result might be long(er)
