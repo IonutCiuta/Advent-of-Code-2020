@@ -9,18 +9,10 @@ class Day16(file: String): Challenge {
     private val fields = mutableListOf<Field>()
     private var myTicket = listOf<Int>()
     private var otherTickets = mutableListOf<List<Int>>()
+    private var invalidTicketsIndices = HashSet<Int>()
 
     init {
         readInput()
-    }
-
-    override fun solve() {
-        val r = otherTickets.map { validateTicket(it) }.sum()
-        println(r)
-    }
-
-    override fun solvePart2() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     private fun readInput() {
@@ -54,12 +46,40 @@ class Day16(file: String): Challenge {
     }
 
     private fun validateTicket(ticket: List<Int>): Int {
-        return ticket.map { validateTicketValue(it) }.sum()
+        var sum = 0
+        ticket.map { validateTicketValue(it) }.forEachIndexed { index, value ->
+            if(value == 0) {
+                invalidTicketsIndices.add(index)
+            }
+            sum += value
+        }
+        return sum
     }
 
     private fun validateTicketValue(value: Int): Int {
         val r = fields.map { it.isValueValidForField(value) }.reduce { a, b -> a || b }
         return if(r) 0 else value
+    }
+
+    private fun cleanupTickets() {
+        var validTickets = mutableListOf<List<Int>>()
+        println("Before cleanup - ${otherTickets.size}")
+        otherTickets.forEachIndexed { index, value ->
+            if(!invalidTicketsIndices.contains(index))
+                validTickets.add(value)
+        }
+        otherTickets = validTickets
+        println("After cleanup - ${otherTickets.size}")
+    }
+
+    override fun solve() {
+        val r = otherTickets.map { validateTicket(it) }.sum()
+        println(r)
+        cleanupTickets()
+    }
+
+    override fun solvePart2() {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 }
 
