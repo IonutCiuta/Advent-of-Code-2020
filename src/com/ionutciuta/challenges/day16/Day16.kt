@@ -1,4 +1,4 @@
-package com.ionutciuta.challenges
+package com.ionutciuta.challenges.day16
 
 import com.ionutciuta.tools.Challenge
 import com.ionutciuta.tools.Input
