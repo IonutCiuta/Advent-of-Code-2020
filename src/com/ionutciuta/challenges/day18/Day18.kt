@@ -26,32 +26,26 @@ class Day18(file: String): Challenge {
         }
     }
 
-    override fun solve() {
-        var sum = 0L
+    private fun cleanData(file: String): List<List<String>> {
+        return Input(file).readLines().map { it.toCharArray().filter { it != ' ' }.map { it.toString() } }.toList()
+    }
 
-        for (line in data) {
-            sum += evaluate(line)
-        }
+    override fun solve() {
+        val sum = data.map { evaluate(it) }.sum()
         println(sum)
     }
 
     private fun evaluate(line: List<String>): Long {
         val params = Stack<String>()
         val ops = Stack<Operation>()
-
-        for (e in line) {
-//            println("e: $e")
-//            println("params: $params")
-//            println("ops: $ops")
+        line.forEach { e ->
             when {
                 e.isOp() -> ops.push(e.toOp())
                 e.isOpen() -> params.push(e)
                 e.isClose() -> eagerCleanup(params, ops)
                 else -> eagerEval(e, params, ops)
             }
-//            println()
         }
-
         return params.pop().toLong()
     }
 
@@ -73,11 +67,31 @@ class Day18(file: String): Challenge {
             throw UnsupportedOperationException("Trying to cleanup $next. Oops. Top was $top\n")
         }
         eagerEval(top, params, ops)
-//        println("Params post clean: $params")
     }
 
-    private fun lazyEval(params: Stack<String>, ops: Stack<Operation>) {
-        if(params.size == 1 && ops.size == 0) {
+    override fun solvePart2() {
+        val sum = data.map { evaluateWithPrecedence(it) }.sum()
+        println(sum)
+    }
+
+    private fun evaluateWithPrecedence(line: List<String>): Long {
+        val params = Stack<String>()
+        val adds = Stack<Operation>()
+        val muls = Stack<Operation>()
+        line.forEach { e ->
+            when {
+                e.isAdd() -> adds.push(e.toOp())
+                e.isMul() -> muls.push(e.toOp())
+                e.isOpen() -> params.push(e)
+                e.isClose() -> lazyEval(params, adds, muls)
+                else -> params.push(e)
+            }
+        }
+        return params.pop().toLong()
+    }
+
+    private fun lazyEval(params: Stack<String>, adds: Stack<Operation>, muls: Stack<Operation>) {
+        if(params.size == 1) {
             return
         }
 
@@ -89,24 +103,21 @@ class Day18(file: String): Challenge {
             return
         }
 
-        val op = ops.pop()
-        params.push(op(head, next).toString())
-        lazyEval(params, ops)
-    }
+        if(adds.isNotEmpty()) {
+            val add = adds.pop()
+            params.push(add(head, next).toString())
+        } else if (muls.isNotEmpty()) {
+            val mul = adds.pop()
+            params.push(mul(head, next).toString())
+        }
 
-    override fun solvePart2() {
-
-    }
-
-    private fun cleanData(file: String): List<List<String>> {
-        return Input(file).readLines().map {
-            it.toCharArray().filter { it != ' ' }.map { it.toString() }.toList()
-        }.toList()
+        lazyEval(params, adds, muls)
     }
 }
 
 fun main(args: Array<String>) {
     val file = Tools.getInput(args)
-    Day18(file).solve()
-    Day18(file).solvePart2()
+    val puzzle = Day18(file)
+    puzzle.solve()
+    puzzle.solvePart2()
 }
