@@ -5,7 +5,6 @@ import com.ionutciuta.tools.Input
 import com.ionutciuta.tools.Tools
 import java.lang.UnsupportedOperationException
 import java.util.*
-import kotlin.math.exp
 
 typealias Operation = (String, String) -> Long
 
@@ -47,13 +46,12 @@ class Day18(file: String): Challenge {
             when {
                 e.isOp() -> ops.push(e.toOp())
                 e.isOpen() -> params.push(e)
-                e.isClose() -> cleanup(params, ops)
+                e.isClose() -> eagerCleanup(params, ops)
                 else -> eagerEval(e, params, ops)
             }
 //            println()
         }
 
-        partialEval(params, ops)
         return params.pop().toLong()
     }
 
@@ -68,7 +66,7 @@ class Day18(file: String): Challenge {
         }
     }
 
-    private fun cleanup(params: Stack<String>, ops: Stack<Operation>) {
+    private fun eagerCleanup(params: Stack<String>, ops: Stack<Operation>) {
         val top = params.pop()
         val next = params.pop()
         if(!next.isOpen()) {
@@ -78,7 +76,7 @@ class Day18(file: String): Challenge {
 //        println("Params post clean: $params")
     }
 
-    private fun partialEval(params: Stack<String>, ops: Stack<Operation>) {
+    private fun lazyEval(params: Stack<String>, ops: Stack<Operation>) {
         if(params.size == 1 && ops.size == 0) {
             return
         }
@@ -93,7 +91,7 @@ class Day18(file: String): Challenge {
 
         val op = ops.pop()
         params.push(op(head, next).toString())
-        partialEval(params, ops)
+        lazyEval(params, ops)
     }
 
     override fun solvePart2() {
